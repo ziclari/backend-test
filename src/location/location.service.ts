@@ -1,26 +1,48 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateLocationDto } from './dto/create-location.dto';
 import { UpdateLocationDto } from './dto/update-location.dto';
+import { Location } from './schemas/location.schema';
+import { Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
 
 @Injectable()
 export class LocationService {
-  create(createLocationDto: CreateLocationDto) {
-    return 'This action adds a new location';
+  constructor(
+    @InjectModel(Location.name) private readonly locationModel: Model<Location>,
+  ) {}
+  async create(createLocationDto: CreateLocationDto) {
+    const loc = await this.locationModel.create(createLocationDto);
+    //TODO: Conexión a api externa para obtener latitud y longitud
+    return loc;
   }
 
-  findAll() {
-    return `This action returns all location`;
+  async findAll() {
+    return await this.locationModel.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} location`;
+  async findOne(id: string) {
+    const loc = await this.locationModel.findById(id);
+    if (!loc)
+      throw new NotFoundException(`Localización con id ${id} no encontrada`);
+    return loc;
   }
 
-  update(id: number, updateLocationDto: UpdateLocationDto) {
-    return `This action updates a #${id} location`;
+  async update(id: string, updateLocationDto: UpdateLocationDto) {
+    const loc = await this.locationModel.findByIdAndUpdate(
+      id,
+      updateLocationDto,
+      {
+        new: true,
+      },
+    );
+    if (!loc)
+      throw new NotFoundException(`Localización con id ${id} no encontrada`);
+    return loc;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} location`;
+  async remove(id: string) {
+    const result = await this.locationModel.findByIdAndDelete(id);
+    if (!result)
+      throw new NotFoundException(`Localización con id ${id} no encontrada`);
   }
 }
