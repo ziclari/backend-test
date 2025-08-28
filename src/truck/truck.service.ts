@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTruckDto } from './dto/create-truck.dto';
 import { UpdateTruckDto } from './dto/update-truck.dto';
 import { Truck } from './schemas/truck.schema';
@@ -9,24 +9,34 @@ import { InjectModel } from '@nestjs/mongoose';
 export class TruckService {
   constructor(@InjectModel(Truck.name) private truckModel: Model<Truck>) {}
 
-  async create(createTruckDto: CreateTruckDto) {
+  async create(createTruckDto: CreateTruckDto): Promise<Truck> {
     const truck = await this.truckModel.create(createTruckDto);
     return truck;
   }
 
-  findAll() {
-    return `This action returns all truck`;
+  async findAll(): Promise<Truck[]> {
+    return await this.truckModel.find().exec();
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id} truck`;
+  async findOne(id: string) {
+    const truck = await this.truckModel.findById(id);
+    if (!truck)
+      throw new NotFoundException(`Camión con id ${id} no encontrado`);
+    return truck;
   }
 
-  update(id: string, updateTruckDto: UpdateTruckDto) {
-    return `This action updates a #${id} truck`;
+  async update(id: string, updateTruckDto: UpdateTruckDto) {
+    const truck = await this.truckModel.findByIdAndUpdate(id, updateTruckDto, {
+      new: true,
+    });
+    if (!truck)
+      throw new NotFoundException(`Camión con id ${id} no encontrado`);
+    return truck;
   }
 
-  remove(id: string) {
-    return `This action removes a #${id} truck`;
+  async remove(id: string) {
+    const result = await this.truckModel.findByIdAndDelete(id);
+    if (!result)
+      throw new NotFoundException(`Camión con id ${id} no encontrado`);
   }
 }
