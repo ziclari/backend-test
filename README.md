@@ -12,6 +12,21 @@ Luego el usuario procede a loguearse con los respectivos datos, una vez realizad
 
 - Configurar entorno de desarrollo (eslint, prettier)
 - Añadir dependencias (Mongodb, class validator, jwt)
+- Agregar conexión a base de datos, en mongosh
+
+```
+use test_db
+
+db.createUser({
+  user: "user_db",
+  pwd: "password_db",
+  roles: [
+    { role: "readWrite", db: "test_db" }
+  ]
+})
+
+```
+
 - Iniciar recurso usuario
 - Crear schema para usuario
 - Crear CRUD para usuario
