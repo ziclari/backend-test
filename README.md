@@ -31,3 +31,73 @@ db.createUser({
 - Crear schema para usuario
 - Crear CRUD para usuario
 - Manejar errores
+- Autentificación de usuario
+- Creación / registro
+
+```
+POST http://localhost:4444/auth/register
+{
+    "email": "ejemplo@mail.com",
+    "password": "Ejemplo1"
+}
+Respuesta:
+    Todo bien:
+    {
+        "email": "prueba@mail.com",
+        "_id": "68b0d0afd8bc5194b08e0ed7",
+        "createdAt": "2025-08-28T21:57:03.599Z",
+        "updatedAt": "2025-08-28T21:57:03.599Z",
+        "__v": 0
+    }
+
+    Registro duplicado:
+    {
+        "message": "El usuario ya se encuentra registrado",
+        "error": "Bad Request",
+        "statusCode": 400
+    }
+    Sin contraseña:
+    {
+        "message": [
+            "password should not be empty"
+        ],
+        "error": "Bad Request",
+        "statusCode": 400
+    }
+    Sin Email:
+    {
+        "message": [
+            "email must be an email",
+            "email should not be empty"
+        ],
+        "error": "Bad Request",
+        "statusCode": 400
+    }
+    Email mal:
+    {
+        "message": [
+            "email must be an email"
+        ],
+        "error": "Bad Request",
+        "statusCode": 400
+    }
+```
+
+- Login
+
+```
+POST http://localhost:4444/auth/login
+{
+    "email": "ejemplo@mail.com",
+    "password": "Ejemplo1"
+}
+Respuesta:
+    Todo bien:
+    token_JWT: "EYjHB...."
+
+    Todo mal:
+    {
+        "message": "Unauthorized",
+        "statusCode": 401
+    }
+```
