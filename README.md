@@ -101,3 +101,119 @@ Respuesta:
         "statusCode": 401
     }
 ```
+
+## Truck CRUD
+
+- Crear un truck
+
+```
+POST http://localhost:4444/truck
+
+Minimo:
+{
+    "user": "68b0d0afd8bc5194b08e0ed7"
+}
+Completo:
+{
+    "user": "68b0d0afd8bc5194b08e0ed7",
+    "year": "2020",
+    "color": "Azul",
+    "plates": "6SOXT44"
+}
+
+Correcto:
+{
+    "user": "68b0d0afd8bc5194b08e0ed7",
+    "year": "2020",
+    "color": "Azul",
+    "plates": "6SOXT44",
+    "_id": "68b0e6c8ed5e45919c66e11d",
+    "createdAt": "2025-08-28T23:31:20.257Z",
+    "updatedAt": "2025-08-28T23:31:20.257Z",
+    "__v": 0
+}
+
+Fallido:
+{
+    "message": [
+        "user must be a mongodb id",
+        "user should not be empty"
+    ],
+    "error": "Bad Request",
+    "statusCode": 400
+}
+
+```
+
+- Editar un truck
+
+```
+PATCH http://localhost:4444/truck/68b0e6c8ed5e45919c66e11d
+
+Correcto:
+{
+    "_id": "68b0e6c8ed5e45919c66e11d",
+    "user": "68b0d0afd8bc5194b08e0ed7",
+    "year": "2020",
+    "color": "Rojo",
+    "plates": "6SOXT44",
+    "createdAt": "2025-08-28T23:31:20.257Z",
+    "updatedAt": "2025-08-28T23:34:04.322Z",
+    "__v": 0
+}
+Fallido:
+{
+    "message": "Camión con id 68b0e6c8edd5e4519c66errr no encontrado",
+    "error": "Not Found",
+    "statusCode": 404
+}
+
+```
+
+- Ver un truck
+
+```
+GET http://localhost:4444/truck/68b0e6c8ed5e45919c66e11d
+{
+    "_id": "68b0e6c8ed5e45919c66e11d",
+    "user": "68b0d0afd8bc5194b08e0ed7",
+    "year": "2020",
+    "color": "Rojo",
+    "plates": "6SOXT44",
+    "createdAt": "2025-08-28T23:31:20.257Z",
+    "updatedAt": "2025-08-28T23:34:04.322Z",
+    "__v": 0
+}
+```
+
+- Ver todos los truck
+
+```
+GET http://localhost:4444/truck
+
+[
+    {
+        "_id": "68b0e660ed5e45919c66e11b",
+        "user": "68b0d0afd8bc5194b08e0ed7",
+        "createdAt": "2025-08-28T23:29:36.103Z",
+        "updatedAt": "2025-08-28T23:29:36.103Z",
+        "__v": 0
+    },
+    {
+        "_id": "68b0e6c8ed5e45919c66e11d",
+        "user": "68b0d0afd8bc5194b08e0ed7",
+        "year": "2020",
+        "color": "Rojo",
+        "plates": "6SOXT44",
+        "createdAt": "2025-08-28T23:31:20.257Z",
+        "updatedAt": "2025-08-28T23:34:04.322Z",
+        "__v": 0
+    }
+]
+```
+
+- Eliminar un truck
+
+```
+DELETE http://localhost:4444/truck/68b0e6c8ed5e45919c66e11d
+```
