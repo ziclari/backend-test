@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { AuthModule } from './auth/auth.module';
 import databaseConfig from './config/database-config';
 
 @Module({
@@ -17,6 +18,7 @@ import databaseConfig from './config/database-config';
       dbName: databaseConfig().database.name,
     }),
     UserModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

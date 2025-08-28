@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -11,9 +16,17 @@ export class UserService {
     @InjectModel(User.name) private readonly userModel: Model<User>,
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
-    const user = await this.userModel.create(createUserDto);
-    return user;
+  async create(createUserDto: CreateUserDto): Promise<Partial<User>> {
+    try {
+      const user = await this.userModel.create(createUserDto);
+      const { password, ...userWithoutPassword } = user.toObject();
+      return userWithoutPassword;
+    } catch (error) {
+      if (error.code === 11000) {
+        throw new BadRequestException('El usuario ya se encuentra registrado');
+      }
+      throw new InternalServerErrorException('Error al crear el usuario');
+    }
   }
 
   async findAll(): Promise<User[]> {
@@ -24,6 +37,13 @@ export class UserService {
     const user = await this.userModel.findById(id);
     if (!user)
       throw new NotFoundException(`Usuario con id ${id} no encontrado`);
+    return user;
+  }
+
+  async findByEmail(email: string): Promise<User> {
+    const user = await this.userModel.findOne({ email });
+    if (!user)
+      throw new NotFoundException(`Usuario con email ${email} no encontrado`);
     return user;
   }
 
