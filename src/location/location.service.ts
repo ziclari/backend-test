@@ -23,23 +23,29 @@ export class LocationService {
     private readonly httpService: HttpService,
   ) {}
 
-  async create(createLocationDto: CreateLocationDto) {
-    const apiKey = process.env.GOOGLE_API_KEY;
+  async create(createLocationDto: CreateLocationDto): Promise<Location> {
+    const apiKey: string | undefined = process.env.GOOGLE_API_KEY;
     if (!apiKey) {
       throw new InternalServerErrorException(
         'Google API Key no está definida en las variables de entorno.',
       );
     }
-    const googleResponse = await this.validatePlaceId(
+    const googleResponse: GooglePlaceResult = await this.validatePlaceId(
       createLocationDto.place_id,
       apiKey,
     );
 
-    const locationData = this.buildLocation(createLocationDto, googleResponse);
+    const locationData: Location = this.buildLocation(
+      createLocationDto,
+      googleResponse,
+    );
     return this.saveLocation(locationData);
   }
 
-  async validatePlaceId(placeId: string, apiKey: string) {
+  async validatePlaceId(
+    placeId: string,
+    apiKey: string,
+  ): Promise<GooglePlaceResult> {
     const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&key=${apiKey}`;
     const response = await firstValueFrom(
       this.httpService.get<GooglePlacesResponse>(url),
@@ -54,7 +60,7 @@ export class LocationService {
   buildLocation(
     createLocationDto: CreateLocationDto,
     googleResult: GooglePlaceResult,
-  ) {
+  ): Location {
     return new this.locationModel({
       ...createLocationDto,
       address: googleResult.formatted_address,
@@ -63,7 +69,7 @@ export class LocationService {
     });
   }
 
-  async saveLocation(locationData: Location) {
+  async saveLocation(locationData: Location): Promise<Location> {
     try {
       const loc = await this.locationModel.create(locationData);
       return loc;
@@ -75,18 +81,21 @@ export class LocationService {
     }
   }
 
-  async findAll() {
+  async findAll(): Promise<Location[]> {
     return await this.locationModel.find();
   }
 
-  async findOne(id: string) {
+  async findOne(id: string): Promise<Location> {
     const loc = await this.locationModel.findById(id);
     if (!loc)
       throw new NotFoundException(`Localización con id ${id} no encontrada`);
     return loc;
   }
 
-  async update(id: string, updateLocationDto: UpdateLocationDto) {
+  async update(
+    id: string,
+    updateLocationDto: UpdateLocationDto,
+  ): Promise<Location> {
     const loc = await this.locationModel.findByIdAndUpdate(
       id,
       updateLocationDto,
@@ -99,7 +108,7 @@ export class LocationService {
     return loc;
   }
 
-  async remove(id: string) {
+  async remove(id: string): Promise<void> {
     const result = await this.locationModel.findByIdAndDelete(id);
     if (!result)
       throw new NotFoundException(`Localización con id ${id} no encontrada`);
