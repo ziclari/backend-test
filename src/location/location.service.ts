@@ -26,7 +26,7 @@ export class LocationService {
   async create(createLocationDto: CreateLocationDto) {
     const apiKey = process.env.GOOGLE_API_KEY;
     if (!apiKey) {
-      throw new Error(
+      throw new InternalServerErrorException(
         'Google API Key no está definida en las variables de entorno.',
       );
     }
@@ -69,9 +69,9 @@ export class LocationService {
       return loc;
     } catch (error) {
       if (error.code === 11000) {
-        throw new BadRequestException('El usuario ya se encuentra registrado');
+        throw new BadRequestException('La locación ya se encuentra registrada');
       }
-      throw new InternalServerErrorException('Error al crear la locatcion');
+      throw new InternalServerErrorException('Error al crear la locación');
     }
   }
 
