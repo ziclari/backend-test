@@ -1,9 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Order } from './schemas/order.schema';
 import { Model } from 'mongoose';
+import { OrderStatus } from './enums/order-status.enum';
 
 @Injectable()
 export class OrderService {
@@ -25,8 +30,21 @@ export class OrderService {
     if (!order) throw new NotFoundException(`Orden con id ${id} no encontrada`);
     return order;
   }
+  async updateStatus(id: string, status: OrderStatus): Promise<Order> {
+    // Validar que el status sea uno de los permitidos
+    if (!Object.values(OrderStatus).includes(status)) {
+      throw new BadRequestException(`Estatus inválido: ${status}`);
+    }
+    const order = await this.orderModel
+      .findByIdAndUpdate(id, { status }, { new: true })
+      .exec();
+    if (!order) {
+      throw new NotFoundException(`Orden con id ${id} no encontrada`);
+    }
+    return order;
+  }
 
-  async update(id: string, updateOrderDto: UpdateOrderDto) {
+  async update(id: string, updateOrderDto: UpdateOrderDto): Promise<Order> {
     const order = await this.orderModel.findByIdAndUpdate(id, updateOrderDto, {
       new: true,
     });
@@ -34,7 +52,7 @@ export class OrderService {
     return order;
   }
 
-  async remove(id: string) {
+  async remove(id: string): Promise<void> {
     const result = await this.orderModel.findByIdAndDelete(id);
     if (!result)
       throw new NotFoundException(`Orden con id ${id} no encontrada`);

@@ -4,7 +4,12 @@ import { OrderStatus } from '../enums/order-status.enum';
 
 @Schema({ timestamps: true })
 export class Order extends Document {
-  @Prop({ type: String, enum: OrderStatus, required: true })
+  @Prop({
+    type: String,
+    enum: OrderStatus,
+    required: true,
+    default: OrderStatus.CREATED,
+  })
   status: string;
 
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })

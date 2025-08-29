@@ -13,6 +13,7 @@ import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
+import { OrderStatus } from './enums/order-status.enum';
 
 @UseGuards(JwtAuthGuard)
 @Controller('order')
@@ -32,6 +33,14 @@ export class OrderController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.orderService.findOne(id);
+  }
+
+  @Patch(':id/status')
+  async updateStatus(
+    @Param('id') id: string,
+    @Body('status') status: OrderStatus,
+  ) {
+    return this.orderService.updateStatus(id, status);
   }
 
   @Patch(':id')
