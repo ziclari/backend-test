@@ -6,8 +6,9 @@ export class AllExceptionsFilter extends BaseExceptionFilter {
   private readonly logger = new Logger(AllExceptionsFilter.name);
   catch(exception: unknown, host: ArgumentsHost) {
     this.logger.error(
-      'Error capturado:',
-      exception instanceof Error ? exception.stack : JSON.stringify(exception),
+      `Error capturado: ${
+        exception instanceof Error ? exception.name : JSON.stringify(exception)
+      }`,
     );
     super.catch(exception, host);
   }
