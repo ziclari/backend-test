@@ -8,6 +8,68 @@ Proyecto backend desarrollado con NestJS y MongoDB. Esta API permite gestionar u
 - **Gestión de localizaciones**: CRUD completo.
 - **Gestión de órdenes**: creación, consulta, actualización de estado y eliminación.
 
+## Abordaje del desarrollo
+
+- Inicié el proyecto con **NestJS** porque ofrece una arquitectura modular y escalable.
+- Definí los **módulos principales** (Auth, Users, Trucks, Locations, Orders) para mantener la separación de responsabilidades.
+- Implementé **variables de entorno** para credenciales, claves externas y configuraciones del servidor.
+- Usé **MongoDB con Mongoose** para modelar los datos por requerimiento del proyecto.
+- Implementé **autenticación con JWT** usando Passport, estrategias locales y guards.
+- Usé de bcrypt para hash de contraseñas, JWT para autenticación, para evitar almacenar contraseñas en texto plano.
+- Añadí **validaciones** en los DTOs con `class-validator` y `class-transformer`.
+- Opté por agregar **Docker** para que la base de datos y la app se puedan levantar fácilmente en cualquier entorno.
+- Documenté los **endpoints** en este README y probé cada uno con herramientas como **Postman** o **cURL**.
+
+## Retos y soluciones
+
+- **Integración con Google Places API**
+  - Reto: dificultad inicial en el uso y autenticación.
+  - Solución: lectura de la documentación oficial.
+
+- **Manejo de ObjectId en MongoDB**
+  - Reto: los ObjectId se guardaban como cadenas de texto.
+  - Solución: implementé `ValidationPipe` con `transform` para convertir correctamente los valores en `ObjectId`.
+
+- **Consultas con datos relacionados**
+  - Reto: mostrar órdenes con campos de usuarios, localizaciones y camiones "limpios" (sin datos sensibles como contraseñas o datos irrelevantes como claves de Places API).
+  - Solución: creé un **aggregation pipeline** con `$lookup` y `$project` para poblar la información necesaria.
+
+## Próximos pasos / mejoras
+
+- Añadir paginación a las consultas de cada uno, en especial órdenes.
+- Añadir roles y permisos a los usuarios.
+- Implementar mejores unit tests con Jest para los servicios y controladores.
+
+---
+
+```mermaid
+flowchart LR
+    Client[Cliente / Frontend] -->|HTTP Request| AuthController
+    Client --> UserController
+    Client --> OrderController
+    Client --> LocationController
+    Client --> TruckController
+
+    AuthController --> AuthService
+    UserController --> UserService
+    OrderController --> OrderService
+    LocationController --> LocationService
+    TruckController --> TruckService
+
+    AuthService --> UserModel[(Users Collection)]
+    UserService --> UserModel
+    OrderService --> OrderModel[(Orders Collection)]
+    LocationService --> LocationModel[(Locations Collection)]
+    TruckService --> TruckModel[(Trucks Collection)]
+
+    subgraph MongoDB
+      UserModel
+      OrderModel
+      LocationModel
+      TruckModel
+    end
+```
+
 # Índice
 
 - [Requisitos](#requisitos)
@@ -59,10 +121,27 @@ Proyecto backend desarrollado con NestJS y MongoDB. Esta API permite gestionar u
 
 ## Dependencias
 
-- [@nestjs/axios](https://docs.nestjs.com/techniques/http-module) (para llamadas HTTP a Google Places API)
-- [mongoose](https://mongoosejs.com/) (ODM para MongoDB)
-- [class-validator](https://github.com/typestack/class-validator) (validación de DTOs)
-- Google Places API Key (variable de entorno: `GOOGLE_API_KEY`)
+**Base de datos**
+
+- [**Mongoose**](https://mongoosejs.com/) → ODM para interactuar con MongoDB.
+
+**Validación**
+
+- [**class-validator**](https://github.com/typestack/class-validator) → Validación de DTOs.
+
+**Seguridad y autenticación**
+
+- [**bcrypt**](https://www.npmjs.com/package/bcrypt) → Hash y comparación de contraseñas.
+- [**@nestjs/jwt**](https://docs.nestjs.com/security/authentication#jwt-functionality), [**passport**](http://www.passportjs.org/), [**passport-jwt**](http://www.passportjs.org/packages/passport-jwt/), [**passport-local**](http://www.passportjs.org/packages/passport-local/) → Autenticación con JWT y estrategia local.
+
+**Configuración**
+
+- [**@nestjs/config**](https://docs.nestjs.com/techniques/configuration) → Manejo de variables de entorno.
+
+**Integración con APIs externas**
+
+- [**@nestjs/axios**](https://docs.nestjs.com/techniques/http-module) → Cliente HTTP para consumo de APIs (ej. Google Places API).
+- [**Google Places API**](https://developers.google.com/maps/documentation/places/web-service/overview) → Obtención de direcciones y coordenadas (`GOOGLE_API_KEY`).
 
 ## Instalación
 
