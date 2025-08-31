@@ -628,3 +628,261 @@ Código HTTP 204 (Sin contenido)
   "statusCode": 404
 }
 ```
+
+# Endpoints de ordenes (Order)
+
+Permiten administrar órdenes de transporte, incluyendo información del usuario, camión y ubicaciones (`pickup` y `dropoff`).  
+Todos los endpoints están protegidos por **JWT** y requieren autenticación.
+
+## Crear una orden
+
+`POST /order`
+
+Crea una nueva orden asociada a un usuario, camión y ubicaciones opcionales.
+
+**Body:**
+
+```json
+{
+  "user": "64f4c6e1c0a4de1234567890",
+  "truck": "64f4c6e1c0a4de0987654321",
+  "pickup": "64f4c6e1c0a4de1122334455",
+  "dropoff": "64f4c6e1c0a4de5566778899"
+}
+```
+
+**Respuesta exitosa:**
+
+```json
+{
+  "_id": "6501c6e1c0a4de9988776655",
+  "status": "created",
+  "user": "64f4c6e1c0a4de1234567890",
+  "truck": "64f4c6e1c0a4de0987654321",
+  "pickup": "64f4c6e1c0a4de1122334455",
+  "dropoff": "64f4c6e1c0a4de5566778899",
+  "createdAt": "2025-08-31T18:30:00.000Z",
+  "updatedAt": "2025-08-31T18:30:00.000Z",
+  "__v": 0
+}
+```
+
+**Errores:**
+
+- IDs no válidos:
+
+  ```json
+  {
+    "statusCode": 400,
+    "message": [
+      "user must be a valid ObjectId",
+      "truck must be a valid ObjectId"
+    ],
+    "error": "Bad Request"
+  }
+  ```
+
+- Falta la API Key:
+  ```json
+  {
+    "statusCode": 401,
+    "message": "Unauthorized"
+  }
+  ```
+
+## Listar todas las órdenes
+
+`GET /order`
+
+Obtiene todas las órdenes registradas.
+
+**Respuesta exitosa:**
+
+```json
+[
+  {
+    "_id": "6501c6e1c0a4de9988776655",
+    "status": "created",
+    "user": "64f4c6e1c0a4de1234567890",
+    "truck": "64f4c6e1c0a4de0987654321",
+    "pickup": "64f4c6e1c0a4de1122334455",
+    "dropoff": "64f4c6e1c0a4de5566778899"
+  }
+]
+```
+
+## Obtener una orden por ID
+
+`GET /order/:id`
+
+**Ejemplo:**
+
+```http
+GET /order/6501c6e1c0a4de9988776655
+```
+
+**Respuesta exitosa:**
+
+```json
+{
+  "_id": "6501c6e1c0a4de9988776655",
+  "status": "created",
+  "user": {
+    "_id": "64f4c6e1c0a4de1234567890",
+    "email": "user@example.com"
+  },
+  "truck": {
+    "_id": "64f4c6e1c0a4de0987654321",
+    "year": 2022,
+    "color": "blue",
+    "plates": "ABC-1234"
+  },
+  "pickup": {
+    "_id": "64f4c6e1c0a4de1122334455",
+    "address": "Av. Reforma 123, CDMX"
+  },
+  "dropoff": {
+    "_id": "64f4c6e1c0a4de5566778899",
+    "address": "Calz. Tlalpan 456, CDMX"
+  }
+}
+```
+
+**Error:**
+
+- No encontrado:
+
+  ```json
+  {
+    "statusCode": 404,
+    "message": "Orden con id 6501c6e1c0a4de9988776655 no encontrada",
+    "error": "Not Found"
+  }
+  ```
+
+- IDs no válidos:
+  ```json
+  {
+    "statusCode": 400,
+    "message": "Cast to ObjectId failed for value \"abc\" at path \"_id\"",
+    "error": "Bad Request"
+  }
+  ```
+
+## Actualizar el **status** de una orden
+
+`PATCH /order/:id/status`
+
+Estados posibles:
+
+- `created`
+- `in transit`
+- `completed`
+
+**Body:**
+
+```json
+{
+  "status": "in transit"
+}
+```
+
+**Respuesta exitosa:**
+
+```json
+{
+  "_id": "6501c6e1c0a4de9988776655",
+  "status": "in transit",
+  "user": "64f4c6e1c0a4de1234567890",
+  "truck": "64f4c6e1c0a4de0987654321",
+  "pickup": "64f4c6e1c0a4de1122334455",
+  "dropoff": "64f4c6e1c0a4de5566778899"
+}
+```
+
+**Error:**
+
+- No encontrada:
+  ```json
+  {
+    "statusCode": 404,
+    "message": "Orden con id 6501c6e1c0a4de1111111111 no encontrada",
+    "error": "Not Found"
+  }
+  ```
+- Estatus inválido:
+  ```json
+  {
+    "statusCode": 400,
+    "message": "Estatus inválido: pending",
+    "error": "Bad Request"
+  }
+  ```
+
+## Actualizar una orden
+
+`PATCH /order/:id`
+
+Permite actualizar cualquier campo excepto el `_id`.
+
+**Body:**
+
+```json
+{
+  "truck": "64f4c6e1c0a4de1111111111",
+  "pickup": "64f4c6e1c0a4de2222222222"
+}
+```
+
+**Respuesta exitosa:**
+
+```json
+{
+  "_id": "6501c6e1c0a4de9988776655",
+  "status": "created",
+  "user": "64f4c6e1c0a4de1234567890",
+  "truck": "64f4c6e1c0a4de1111111111",
+  "pickup": "64f4c6e1c0a4de2222222222",
+  "dropoff": "64f4c6e1c0a4de5566778899"
+}
+```
+
+**Errores:**
+
+- No encontrada:
+  ```json
+  {
+    "statusCode": 404,
+    "message": "Orden con id 6501c6e1c0a4de9999999999 no encontrada",
+    "error": "Not Found"
+  }
+  ```
+- Fallo de validación:
+
+```json
+{
+  "statusCode": 400,
+  "message": "Validation failed (ObjectId is expected)",
+  "error": "Bad Request"
+}
+```
+
+## Eliminar una orden
+
+`DELETE /order/:id`
+
+**Respuesta exitosa:**
+
+```http
+204 No Content
+```
+
+**Error:**
+
+```json
+{
+  "statusCode": 404,
+  "message": "Orden con id 6501c6e1c0a4de1231231231 no encontrada",
+  "error": "Not Found"
+}
+```
