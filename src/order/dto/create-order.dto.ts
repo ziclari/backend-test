@@ -2,7 +2,7 @@ import { IsNotEmpty, IsOptional, IsMongoId, IsEnum } from 'class-validator';
 import { Types } from 'mongoose';
 import { OrderStatus } from '../enums/order-status.enum';
 export class CreateOrderDto {
-  @IsNotEmpty()
+  @IsOptional()
   @IsEnum(OrderStatus)
   status: string;
 
