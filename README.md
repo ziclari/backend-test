@@ -1,18 +1,21 @@
 # Backend Test API
 
-Proyecto backend desarrollado con NestJS y MongoDB. Provee endpoints RESTful para la gestión de usuarios, camiones, ubicaciones y ordenes.
+Proyecto backend desarrollado con NestJS y MongoDB. Esta API permite gestionar un sistema de órdenes de transporte, incluyendo usuarios, camiones, localizaciones y órdenes.
+
+- **Autenticación** con JWT (login/registro de usuarios).
+- **Gestión de usuarios**: crear, obtener, actualizar y eliminar.
+- **Gestión de camiones**: CRUD completo.
+- **Gestión de localizaciones**: CRUD completo.
+- **Gestión de órdenes**: creación, consulta, actualización de estado y eliminación.
 
 # Índice
-
-## Secciones principales
 
 - [Requisitos](#requisitos)
 - [Dependencias](#dependencias)
 - [Instalación](#instalación)
 - [Configuración](#configuración)
-- [Ejecución](#ejecución)
-
-## Autenticación
+  - [1. Ejecución local](#1-ejecución-local)
+  - [2. Ejecución con Docker](#2-ejecución-con-docker)
 
 - [Endpoints de Autenticación](#endpoints-de-autenticación)
   - [Registrar usuario](#registrar-usuario)
@@ -20,15 +23,11 @@ Proyecto backend desarrollado con NestJS y MongoDB. Provee endpoints RESTful par
 - [Uso del token](#uso-del-token)
 - [Flujo de autenticación](#flujo-de-autenticación)
 
-## Usuarios
-
 - [Endpoints Usuarios](#endpoints-usuarios)
   - [Crear usuario](#crear-usuario)
   - [Obtener usuario por ID](#obtener-usuario-por-id)
   - [Actualizar usuario](#actualizar-usuario)
   - [Eliminar usuario](#eliminar-usuario)
-
-## Camiones
 
 - [Endpoints de Camiones (Truck)](#endpoints-de-camiones-truck)
   - [Crear camión](#crear-camión)
@@ -37,16 +36,12 @@ Proyecto backend desarrollado con NestJS y MongoDB. Provee endpoints RESTful par
   - [Actualizar camión](#actualizar-camión)
   - [Eliminar camión](#eliminar-camión)
 
-## Localizaciones
-
 - [Endpoints de Localización (Location)](#endpoints-de-localizacion-location)
   - [Crear localización](#crear-localización)
   - [Listar localizaciones](#listar-localizaciones)
   - [Obtener localización por ID](#obtener-localización-por-id)
   - [Actualizar localización](#actualizar-localización)
   - [Eliminar localización](#eliminar-localización)
-
-## Órdenes
 
 - [Endpoints de órdenes (Order)](#endpoints-de-ordenes-order)
   - [Crear una orden](#crear-una-orden)
@@ -77,6 +72,15 @@ pnpm install
 
 ## Configuración
 
+### 1. Ejecución local
+
+#### Requisitos
+
+- [Node.js](https://nodejs.org/) >= 18
+- [npm](https://www.npmjs.com/) o [pnpm](https://pnpm.io/)
+- [MongoDB](https://www.mongodb.com/) >= 6.0
+- Acceso a `mongosh` para crear usuarios y bases de datos
+
 Configura las variables de entorno en `.env` en la raíz del proyecto:
 
 ```
@@ -90,17 +94,51 @@ DATABASE_PASSWORD=password_db
 DATABASE_NAME=test_db
 
 # Google API
-GOOGLE_API_KEY=test
+GOOGLE_API_KEY=tu_clave_api
 
 # JWT
 JWT_SECRET=test_secret_key
 
 ```
 
-## Ejecución
+#### Configuración de MongoDB
 
-```sh
-pnpm start
+Antes de correr la aplicación, crea un usuario para tu base de datos `test_db` usando `mongosh`:
+
+```bash
+# Conéctate a mongosh
+mongosh
+
+# Cambia a la base de datos que usarás
+use test_db
+
+# Crea un usuario con permisos de lectura y escritura
+db.createUser({
+  user: "user_db",
+  pwd: "password_db",
+  roles: [
+    { role: "readWrite", db: "test_db" }
+  ]
+})
+```
+
+### 2. Ejecución con Docker
+
+#### Requisitos
+
+- [Docker](https://docs.docker.com/get-docker/) >= 20.x
+- [Docker Compose](https://docs.docker.com/compose/) >= 2.x
+
+```bash
+# Desde la raíz del proyecto ve a la carpeta docker
+cd docker
+
+# Levanta los servicios con Docker Compose
+docker-compose up --build
+
+# La API estará disponible en:
+http://localhost:3000
+
 ```
 
 ## Endpoints de Autenticación

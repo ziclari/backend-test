@@ -9,7 +9,7 @@ services:
     ports:
       - '${PORT:-3000}:3000'
     env_file:
-      - ./api/.env-test
+      - ../.env
     depends_on:
       - db
 
