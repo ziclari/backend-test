@@ -52,7 +52,10 @@ export class LocationService {
     );
 
     if (response.data.status !== 'OK') {
-      throw new BadRequestException('El place_id proporcionado no es válido.');
+      throw new BadRequestException(
+        response.data.error_message ||
+          'El place_id proporcionado no es válido.',
+      );
     }
     return response.data.result; // Devuelve el primer resultado si existe
   }
