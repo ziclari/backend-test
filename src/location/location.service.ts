@@ -15,6 +15,7 @@ import {
   GooglePlaceResult,
   GooglePlacesResponse,
 } from './interfaces/google-places-response.interface';
+import { LocationCore } from './interfaces/location-core.interface';
 
 @Injectable()
 export class LocationService {
@@ -23,26 +24,7 @@ export class LocationService {
     private readonly httpService: HttpService,
   ) {}
 
-  async create(createLocationDto: CreateLocationDto): Promise<Location> {
-    const apiKey: string | undefined = process.env.GOOGLE_API_KEY;
-    if (!apiKey) {
-      throw new InternalServerErrorException(
-        'Google API Key no está definida en las variables de entorno.',
-      );
-    }
-    const googleResponse: GooglePlaceResult = await this.validatePlaceId(
-      createLocationDto.place_id,
-      apiKey,
-    );
-
-    const locationData: Location = this.buildLocation(
-      createLocationDto,
-      googleResponse,
-    );
-    return this.saveLocation(locationData);
-  }
-
-  async validatePlaceId(
+  private async validatePlaceId(
     placeId: string,
     apiKey: string,
   ): Promise<GooglePlaceResult> {
@@ -57,22 +39,39 @@ export class LocationService {
           'El place_id proporcionado no es válido.',
       );
     }
-    return response.data.result; // Devuelve el primer resultado si existe
+    return response.data.result;
   }
 
-  buildLocation(
-    createLocationDto: CreateLocationDto,
+  private buildLocation(
+    place_id: string,
     googleResult: GooglePlaceResult,
-  ): Location {
-    return new this.locationModel({
-      ...createLocationDto,
+  ): LocationCore {
+    return {
+      place_id,
       address: googleResult.formatted_address,
       latitude: googleResult.geometry.location.lat,
       longitude: googleResult.geometry.location.lng,
-    });
+    };
   }
 
-  async saveLocation(locationData: Location): Promise<Location> {
+  private async prepareLocationData(placeId: string): Promise<LocationCore> {
+    const apiKey: string | undefined = process.env.GOOGLE_API_KEY;
+    if (!apiKey) {
+      throw new InternalServerErrorException(
+        'Google API Key no está definida en las variables de entorno.',
+      );
+    }
+    const googleResponse: GooglePlaceResult = await this.validatePlaceId(
+      placeId,
+      apiKey,
+    );
+
+    return this.buildLocation(placeId, googleResponse);
+  }
+
+  private async saveLocation(
+    locationData: Partial<Location>,
+  ): Promise<Location> {
     try {
       const loc = await this.locationModel.create(locationData);
       return loc;
@@ -82,6 +81,32 @@ export class LocationService {
       }
       throw new InternalServerErrorException('Error al crear la locación');
     }
+  }
+
+  private async updateLocation(
+    id: string,
+    locationData: Partial<Location>,
+  ): Promise<Location> {
+    try {
+      const loc = await this.locationModel.findByIdAndUpdate(id, locationData, {
+        new: true,
+      });
+      if (!loc)
+        throw new NotFoundException(`Localización con id ${id} no encontrada`);
+      return loc;
+    } catch (error) {
+      if (error.code === 11000) {
+        throw new BadRequestException('La locación ya se encuentra registrada');
+      }
+      throw new InternalServerErrorException('Error al crear la locación');
+    }
+  }
+
+  async create(createLocationDto: CreateLocationDto): Promise<Location> {
+    const locationData: LocationCore = await this.prepareLocationData(
+      createLocationDto.place_id,
+    );
+    return this.saveLocation(locationData);
   }
 
   async findAll(): Promise<Location[]> {
@@ -99,16 +124,15 @@ export class LocationService {
     id: string,
     updateLocationDto: UpdateLocationDto,
   ): Promise<Location> {
-    const loc = await this.locationModel.findByIdAndUpdate(
-      id,
-      updateLocationDto,
-      {
-        new: true,
-      },
+    if (!updateLocationDto.place_id) {
+      throw new BadRequestException(
+        'El place_id es obligatorio para actualizar la locación.',
+      );
+    }
+    const locationData: LocationCore = await this.prepareLocationData(
+      updateLocationDto.place_id,
     );
-    if (!loc)
-      throw new NotFoundException(`Localización con id ${id} no encontrada`);
-    return loc;
+    return this.updateLocation(id, locationData);
   }
 
   async remove(id: string): Promise<void> {
