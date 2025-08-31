@@ -305,4 +305,153 @@ Código HTTP 204 (Sin contenido)
 }
 ```
 
-## Licencia
+# Endpoints de Camiones (Truck)
+
+Todos los endpoints requieren autenticación JWT.
+
+## Crear camión
+
+`POST /truck`
+
+**Body:**
+
+```json
+{
+  "user": "68b0d0afd8bc5194b08e0ed7",
+  "year": "2022",
+  "color": "Rojo",
+  "plates": "ABC123"
+}
+```
+
+**Respuesta exitosa:**
+
+```json
+{
+  "_id": "68b0d0afd8bc5194b08e0ed8",
+  "user": "68b0d0afd8bc5194b08e0ed7",
+  "year": "2022",
+  "color": "Rojo",
+  "plates": "ABC123",
+  "createdAt": "2025-08-31T21:57:03.599Z",
+  "updatedAt": "2025-08-31T21:57:03.599Z",
+  "__v": 0
+}
+```
+
+---
+
+## Listar camiones
+
+`GET /truck`
+
+**Respuesta:**
+
+```json
+[
+  {
+    "_id": "68b0d0afd8bc5194b08e0ed8",
+    "user": "68b0d0afd8bc5194b08e0ed7",
+    "year": "2022",
+    "color": "Rojo",
+    "plates": "ABC123"
+  },
+  {
+    "_id": "68b0d0afd8bc5194b08e0ed9",
+    "user": "68b0d0afd8bc5194b08e0ed7",
+    "year": "2021",
+    "color": "Azul",
+    "plates": "XYZ789"
+  }
+]
+```
+
+---
+
+## Obtener camión por ID
+
+`GET /truck/:id`
+
+**Respuesta exitosa:**
+
+```json
+{
+  "_id": "68b0d0afd8bc5194b08e0ed8",
+  "user": "68b0d0afd8bc5194b08e0ed7",
+  "year": "2022",
+  "color": "Rojo",
+  "plates": "ABC123",
+  "createdAt": "2025-08-31T21:57:03.599Z",
+  "updatedAt": "2025-08-31T21:57:03.599Z",
+  "__v": 0
+}
+```
+
+**Error:**
+
+```json
+{
+  "message": "Camión con id 68b0d0afd8bc5194b08e0ed8 no encontrado",
+  "error": "Not Found",
+  "statusCode": 404
+}
+```
+
+---
+
+## Actualizar camión
+
+`PATCH /truck/:id`
+
+**Body:**
+
+```json
+{
+  "color": "Negro",
+  "plates": "DEF456"
+}
+```
+
+**Respuesta exitosa:**
+
+```json
+{
+  "_id": "68b0d0afd8bc5194b08e0ed8",
+  "user": "68b0d0afd8bc5194b08e0ed7",
+  "year": "2022",
+  "color": "Negro",
+  "plates": "DEF456",
+  "createdAt": "2025-08-31T21:57:03.599Z",
+  "updatedAt": "2025-08-31T22:00:00.000Z",
+  "__v": 0
+}
+```
+
+**Error:**
+
+```json
+{
+  "message": "Camión con id 68b0d0afd8bc5194b08e0ed8 no encontrado",
+  "error": "Not Found",
+  "statusCode": 404
+}
+```
+
+---
+
+## Eliminar camión
+
+`DELETE /truck/:id`
+
+**Respuesta exitosa:**  
+Código HTTP 204 (Sin contenido)
+
+**Error:**
+
+```json
+{
+  "message": "Camión con id 68b0d0afd8bc5194b08e0ed8 no encontrado",
+  "error": "Not Found",
+  "statusCode": 404
+}
+```
