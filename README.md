@@ -8,6 +8,13 @@ Proyecto backend desarrollado con NestJS y MongoDB. Provee endpoints RESTful par
 - MongoDB >= 5
 - pnpm (o npm/yarn)
 
+## Dependencias
+
+- [@nestjs/axios](https://docs.nestjs.com/techniques/http-module) (para llamadas HTTP a Google Places API)
+- [mongoose](https://mongoosejs.com/) (ODM para MongoDB)
+- [class-validator](https://github.com/typestack/class-validator) (validación de DTOs)
+- Google Places API Key (variable de entorno: `GOOGLE_API_KEY`)
+
 ## Instalación
 
 ```sh
@@ -451,6 +458,172 @@ Código HTTP 204 (Sin contenido)
 ```json
 {
   "message": "Camión con id 68b0d0afd8bc5194b08e0ed8 no encontrado",
+  "error": "Not Found",
+  "statusCode": 404
+}
+```
+
+# Endpoints de Localización (Location)
+
+Todos los endpoints requieren autenticación JWT.
+
+## Crear localización
+
+`POST /location`
+
+**Body:**
+
+```json
+{
+  "place_id": "ChIJiRp93iEC0oURvJVqErpVVHw"
+}
+```
+
+**Respuesta exitosa:**
+
+```json
+{
+  "_id": "68b0d0afd8bc5194b08e0ed8",
+  "place_id": "ChIJiRp93iEC0oURvJVqErpVVHw",
+  "address": "San Isidro 44, Reforma Soc, Miguel Hidalgo, 11650 Ciudad de México, CDMX, Mexico",
+  "latitude": 19.433681,
+  "longitude": -99.2121884,
+  "createdAt": "2025-08-31T21:57:03.599Z",
+  "updatedAt": "2025-08-31T21:57:03.599Z",
+  "__v": 0
+}
+```
+
+**Errores:**
+
+- Place ID inválido:
+  ```json
+  {
+    "message": "El place_id proporcionado no es válido.",
+    "error": "Bad Request",
+    "statusCode": 400
+  }
+  ```
+- Place ID duplicado:
+  ```json
+  {
+    "message": "La locación ya se encuentra registrada",
+    "error": "Bad Request",
+    "statusCode": 400
+  }
+  ```
+- Falta la API Key:
+  ```json
+  {
+    "message": "Google API Key no está definida en las variables de entorno.",
+    "error": "Internal Server Error",
+    "statusCode": 500
+  }
+  ```
+
+## Listar localizaciones
+
+`GET /location`
+
+**Respuesta:**
+
+```json
+[
+  {
+    "_id": "68b0d0afd8bc5194b08e0ed8",
+    "place_id": "ChIJN1t_tDeuEmsRUsoyG83frY4",
+    "address": "5 Sydney Ave, Sydney NSW 2000, Australia",
+    "latitude": -33.867487,
+    "longitude": 151.20699
+  },
+  {
+    "_id": "68b0d0afd8bc5194b08e0ed9",
+    "place_id": "ChIJLfySpTOuEmsRsc_JfJtljdc",
+    "address": "1 Martin Pl, Sydney NSW 2000, Australia",
+    "latitude": -33.86882,
+    "longitude": 151.209296
+  }
+]
+```
+
+## Obtener localización por ID
+
+`GET /location/:id`
+
+**Respuesta exitosa:**
+
+```json
+{
+  "_id": "68b0d0afd8bc5194b08e0ed8",
+  "place_id": "ChIJN1t_tDeuEmsRUsoyG83frY4",
+  "address": "5 Sydney Ave, Sydney NSW 2000, Australia",
+  "latitude": -33.867487,
+  "longitude": 151.20699,
+  "createdAt": "2025-08-31T21:57:03.599Z",
+  "updatedAt": "2025-08-31T21:57:03.599Z",
+  "__v": 0
+}
+```
+
+**Error:**
+
+```json
+{
+  "message": "Localización con id 68b0d0afd8bc5194b08e0ed8 no encontrada",
+  "error": "Not Found",
+  "statusCode": 404
+}
+```
+
+## Actualizar localización
+
+`PATCH /location/:id`
+
+**Body:**
+
+```json
+{
+  "place_id": "ChIJGQkBCFIAzoURlLaQUWnuYZc"
+}
+```
+
+**Respuesta exitosa:**
+
+```json
+{
+  "_id": "68b0d0afd8bc5194b08e0ed8",
+  "place_id": "ChIJGQkBCFIAzoURlLaQUWnuYZc",
+  "address": "Calz. de Tlalpan 3465, Sta. Úrsula Coapa, Coyoacán, 04650 Ciudad de México, CDMX, Mexico",
+  "latitude": 19.3028607,
+  "longitude": -99.1505277,
+  "createdAt": "2025-08-31T21:57:03.599Z",
+  "updatedAt": "2025-08-31T21:57:03.599Z",
+  "__v": 0
+}
+```
+
+**Error:**
+
+```json
+{
+  "message": "Localización con id 68b0d0afd8bc5194b08e0ed8 no encontrada",
+  "error": "Not Found",
+  "statusCode": 404
+}
+```
+
+## Eliminar localización
+
+`DELETE /location/:id`
+
+**Respuesta exitosa:**  
+Código HTTP 204 (Sin contenido)
+
+**Error:**
+
+```json
+{
+  "message": "Localización con id 68b0d0afd8bc5194b08e0ed8 no encontrada",
   "error": "Not Found",
   "statusCode": 404
 }
