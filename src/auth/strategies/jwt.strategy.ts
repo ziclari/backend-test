@@ -1,13 +1,14 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { jwtConstants } from '../constants/jwt.constant';
 import { JwtPayload } from '../interfaces/jwt-payload.interface';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor() {
-    if (!jwtConstants.secret) {
+  constructor(private configService: ConfigService) {
+    const secret = configService.get<string>('JWT_SECRET');
+    if (!secret) {
       throw new InternalServerErrorException(
         'No se ha agregado un secreto para JWT',
       );
@@ -15,7 +16,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: jwtConstants.secret,
+      secretOrKey: secret,
     });
   }
 
