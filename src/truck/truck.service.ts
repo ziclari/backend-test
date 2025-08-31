@@ -18,14 +18,14 @@ export class TruckService {
     return await this.truckModel.find().exec();
   }
 
-  async findOne(id: string) {
+  async findOne(id: string): Promise<Truck> {
     const truck = await this.truckModel.findById(id);
     if (!truck)
       throw new NotFoundException(`Camión con id ${id} no encontrado`);
     return truck;
   }
 
-  async update(id: string, updateTruckDto: UpdateTruckDto) {
+  async update(id: string, updateTruckDto: UpdateTruckDto): Promise<Truck> {
     const truck = await this.truckModel.findByIdAndUpdate(id, updateTruckDto, {
       new: true,
     });
@@ -34,7 +34,7 @@ export class TruckService {
     return truck;
   }
 
-  async remove(id: string) {
+  async remove(id: string): Promise<void> {
     const result = await this.truckModel.findByIdAndDelete(id);
     if (!result)
       throw new NotFoundException(`Camión con id ${id} no encontrado`);

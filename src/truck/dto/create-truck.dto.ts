@@ -1,8 +1,10 @@
-import { IsString, IsNotEmpty, IsOptional, IsMongoId } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
 import { Types } from 'mongoose';
+import { ToObjectId } from 'src/common/transforms/object-id.transform';
 export class CreateTruckDto {
   @IsNotEmpty()
-  @IsMongoId()
+  @Transform(ToObjectId())
   user: Types.ObjectId;
 
   @IsOptional()
