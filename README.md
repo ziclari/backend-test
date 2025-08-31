@@ -1,219 +1,308 @@
-## Inicio
+# Backend Test API
 
-Inicio de proyecto Nestjs
+Proyecto backend desarrollado con NestJS y MongoDB. Provee endpoints RESTful para la gestión de usuarios, camiones, ubicaciones y ordenes.
 
-## Users CRUD
+## Requisitos
 
-Para el dominio de Users, vamos a necesitar que el usuario pueda registrarse por primera vez con sus datos (email, password), asimismo comprobar que no pueda hacerlo nuevamente si ya se encuentra registrado.
+- Node.js >= 18
+- MongoDB >= 5
+- pnpm (o npm/yarn)
 
-Luego el usuario procede a loguearse con los respectivos datos, una vez realizado el logueo, este EP (endpoint) nos devuelve un token JWT.
+## Instalación
 
-### Paso 1
-
-- Configurar entorno de desarrollo (eslint, prettier)
-- Añadir dependencias (Mongodb, class validator, jwt)
-- Agregar conexión a base de datos, en mongosh
-
-```
-use test_db
-
-db.createUser({
-  user: "user_db",
-  pwd: "password_db",
-  roles: [
-    { role: "readWrite", db: "test_db" }
-  ]
-})
-
+```sh
+pnpm install
 ```
 
-- Iniciar recurso usuario
-- Crear schema para usuario
-- Crear CRUD para usuario
-- Manejar errores
-- Autentificación de usuario
-- Creación / registro
+## Configuración
+
+Configura las variables de entorno en `.env` en la raíz del proyecto:
 
 ```
-POST http://localhost:4444/auth/register
+# NestJS
+PORT=3000
+
+# MongoDB
+DATABASE_HOST=db:27017
+DATABASE_USERNAME=user_db
+DATABASE_PASSWORD=password_db
+DATABASE_NAME=test_db
+
+# Google API
+GOOGLE_API_KEY=test
+
+# JWT
+JWT_SECRET=test_secret_key
+
+```
+
+## Ejecución
+
+```sh
+pnpm start
+```
+
+# Endpoints de Autenticación
+
+La API permite registrar usuarios y autenticarlos mediante JWT.
+
+## Endpoints
+
+### Registrar usuario
+
+`POST /auth/register`
+
+**Body:**
+
+```json
 {
-    "email": "ejemplo@mail.com",
-    "password": "Ejemplo1"
+  "email": "ejemplo@mail.com",
+  "password": "Ejemplo1"
 }
-Respuesta:
-    Todo bien:
-    {
-        "email": "prueba@mail.com",
-        "_id": "68b0d0afd8bc5194b08e0ed7",
-        "createdAt": "2025-08-28T21:57:03.599Z",
-        "updatedAt": "2025-08-28T21:57:03.599Z",
-        "__v": 0
-    }
-
-    Registro duplicado:
-    {
-        "message": "El usuario ya se encuentra registrado",
-        "error": "Bad Request",
-        "statusCode": 400
-    }
-    Sin contraseña:
-    {
-        "message": [
-            "password should not be empty"
-        ],
-        "error": "Bad Request",
-        "statusCode": 400
-    }
-    Sin Email:
-    {
-        "message": [
-            "email must be an email",
-            "email should not be empty"
-        ],
-        "error": "Bad Request",
-        "statusCode": 400
-    }
-    Email mal:
-    {
-        "message": [
-            "email must be an email"
-        ],
-        "error": "Bad Request",
-        "statusCode": 400
-    }
 ```
 
-- Login
+**Respuesta exitosa:**
 
-```
-POST http://localhost:4444/auth/login
+```json
 {
-    "email": "ejemplo@mail.com",
-    "password": "Ejemplo1"
+  "email": "ejemplo@mail.com",
+  "_id": "68b0d0afd8bc5194b08e0ed7",
+  "createdAt": "2025-08-28T21:57:03.599Z",
+  "updatedAt": "2025-08-28T21:57:03.599Z",
+  "__v": 0
 }
-Respuesta:
-    Todo bien:
-    token_JWT: "EYjHB...."
-
-    Todo mal:
-    {
-        "message": "Unauthorized",
-        "statusCode": 401
-    }
 ```
 
-## Truck CRUD
+**Errores:**
 
-- Crear un truck
-
-```
-POST http://localhost:4444/truck
-
-Minimo:
-{
-    "user": "68b0d0afd8bc5194b08e0ed7"
-}
-Completo:
-{
-    "user": "68b0d0afd8bc5194b08e0ed7",
-    "year": "2020",
-    "color": "Azul",
-    "plates": "6SOXT44"
-}
-
-Correcto:
-{
-    "user": "68b0d0afd8bc5194b08e0ed7",
-    "year": "2020",
-    "color": "Azul",
-    "plates": "6SOXT44",
-    "_id": "68b0e6c8ed5e45919c66e11d",
-    "createdAt": "2025-08-28T23:31:20.257Z",
-    "updatedAt": "2025-08-28T23:31:20.257Z",
-    "__v": 0
-}
-
-Fallido:
-{
-    "message": [
-        "user must be a mongodb id",
-        "user should not be empty"
-    ],
+- Email duplicado:
+  ```json
+  {
+    "message": "El usuario ya se encuentra registrado",
     "error": "Bad Request",
     "statusCode": 400
-}
+  }
+  ```
+- Email inválido o vacío:
+  ```json
+  {
+    "message": ["email must be an email", "email should not be empty"],
+    "error": "Bad Request",
+    "statusCode": 400
+  }
+  ```
+- Contraseña vacía:
+  ```json
+  {
+    "message": ["password should not be empty"],
+    "error": "Bad Request",
+    "statusCode": 400
+  }
+  ```
 
-```
+---
 
-- Editar un truck
+### Login de usuario
 
-```
-PATCH http://localhost:4444/truck/68b0e6c8ed5e45919c66e11d
+`POST /auth/login`
 
-Correcto:
+**Body:**
+
+```json
 {
-    "_id": "68b0e6c8ed5e45919c66e11d",
-    "user": "68b0d0afd8bc5194b08e0ed7",
-    "year": "2020",
-    "color": "Rojo",
-    "plates": "6SOXT44",
-    "createdAt": "2025-08-28T23:31:20.257Z",
-    "updatedAt": "2025-08-28T23:34:04.322Z",
-    "__v": 0
+  "email": "ejemplo@mail.com",
+  "password": "Ejemplo1"
 }
-Fallido:
+```
+
+**Respuesta exitosa:**
+
+```json
 {
-    "message": "Camión con id 68b0e6c8edd5e4519c66errr no encontrado",
-    "error": "Not Found",
-    "statusCode": 404
+  "token_JWT": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 }
-
 ```
 
-- Ver un truck
+**Errores:**
+
+- Credenciales incorrectas:
+  ```json
+  {
+    "message": "Unauthorized",
+    "statusCode": 401
+  }
+  ```
+
+## Uso del token
+
+Incluye el token JWT en el header para acceder a los endpoints protegidos:
 
 ```
-GET http://localhost:4444/truck/68b0e6c8ed5e45919c66e11d
+Authorization: Bearer <token>
+```
+
+## Flujo de autenticación
+
+1. **Registro:** El usuario se registra con email y contraseña. La contraseña se almacena hasheada.
+2. **Login:** El usuario envía email y contraseña, recibe un token JWT si las credenciales son correctas.
+3. **Acceso:** Usa el token JWT para acceder a los endpoints protegidos del CRUD de usuarios, camiones, ubicaciones y ordenes.
+
+## Endpoints Usuarios
+
+Todos los endpoints requieren autenticación JWT.
+
+### Crear usuario
+
+`POST /user`
+
+**Body:**
+
+```json
 {
-    "_id": "68b0e6c8ed5e45919c66e11d",
-    "user": "68b0d0afd8bc5194b08e0ed7",
-    "year": "2020",
-    "color": "Rojo",
-    "plates": "6SOXT44",
-    "createdAt": "2025-08-28T23:31:20.257Z",
-    "updatedAt": "2025-08-28T23:34:04.322Z",
-    "__v": 0
+  "email": "ejemplo@mail.com",
+  "password": "Ejemplo1"
 }
 ```
 
-- Ver todos los truck
+**Respuesta exitosa:**
 
+```json
+{
+  "email": "ejemplo@mail.com",
+  "_id": "68b0d0afd8bc5194b08e0ed7",
+  "createdAt": "2025-08-28T21:57:03.599Z",
+  "updatedAt": "2025-08-28T21:57:03.599Z",
+  "__v": 0
+}
 ```
-GET http://localhost:4444/truck
 
+**Errores:**
+
+- Email duplicado:
+  ```json
+  {
+    "message": "El usuario ya se encuentra registrado",
+    "error": "Bad Request",
+    "statusCode": 400
+  }
+  ```
+- Email inválido o vacío:
+  ```json
+  {
+    "message": ["email must be an email", "email should not be empty"],
+    "error": "Bad Request",
+    "statusCode": 400
+  }
+  ```
+- Contraseña vacía:
+  ```json
+  {
+    "message": ["password should not be empty"],
+    "error": "Bad Request",
+    "statusCode": 400
+  }
+  ```
+
+---
+
+### Listar usuarios
+
+`GET /user`
+
+**Respuesta:**
+
+```json
 [
-    {
-        "_id": "68b0e660ed5e45919c66e11b",
-        "user": "68b0d0afd8bc5194b08e0ed7",
-        "createdAt": "2025-08-28T23:29:36.103Z",
-        "updatedAt": "2025-08-28T23:29:36.103Z",
-        "__v": 0
-    },
-    {
-        "_id": "68b0e6c8ed5e45919c66e11d",
-        "user": "68b0d0afd8bc5194b08e0ed7",
-        "year": "2020",
-        "color": "Rojo",
-        "plates": "6SOXT44",
-        "createdAt": "2025-08-28T23:31:20.257Z",
-        "updatedAt": "2025-08-28T23:34:04.322Z",
-        "__v": 0
-    }
+  {
+    "email": "ejemplo@mail.com"
+  },
+  {
+    "email": "otro@mail.com"
+  }
 ]
 ```
 
-- Eliminar un truck
+---
 
+### Obtener usuario por ID
+
+`GET /user/:id`
+
+**Respuesta exitosa:**
+
+```json
+{
+  "_id": "68b0d0afd8bc5194b08e0ed7",
+  "email": "ejemplo@mail.com",
+  "createdAt": "2025-08-28T21:57:03.599Z",
+  "updatedAt": "2025-08-28T21:57:03.599Z",
+  "__v": 0
+}
 ```
-DELETE http://localhost:4444/truck/68b0e6c8ed5e45919c66e11d
+
+**Error:**
+
+```json
+{
+  "message": "Usuario con id 68b0d0afd8bc5194b08e0ed7 no encontrado",
+  "error": "Not Found",
+  "statusCode": 404
+}
 ```
+
+---
+
+### Actualizar usuario
+
+`PATCH /user/:id`
+
+**Body:**
+
+```json
+{
+  "email": "nuevo@mail.com"
+}
+```
+
+**Respuesta exitosa:**
+
+```json
+{
+  "_id": "68b0d0afd8bc5194b08e0ed7",
+  "email": "nuevo@mail.com",
+  "createdAt": "2025-08-28T21:57:03.599Z",
+  "updatedAt": "2025-08-28T22:00:00.000Z",
+  "__v": 0
+}
+```
+
+**Error:**
+
+```json
+{
+  "message": "Usuario con id 68b0d0afd8bc5194b08e0ed7 no encontrado",
+  "error": "Not Found",
+  "statusCode": 404
+}
+```
+
+---
+
+### Eliminar usuario
+
+`DELETE /user/:id`
+
+**Respuesta exitosa:**  
+Código HTTP 204 (Sin contenido)
+
+**Error:**
+
+```json
+{
+  "message": "Usuario con id 68b0d0afd8bc5194b08e0ed7 no encontrado",
+  "error": "Not Found",
+  "statusCode": 404
+}
+```
+
+## Licencia
