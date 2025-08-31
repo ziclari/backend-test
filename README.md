@@ -2,6 +2,60 @@
 
 Proyecto backend desarrollado con NestJS y MongoDB. Provee endpoints RESTful para la gestión de usuarios, camiones, ubicaciones y ordenes.
 
+# Índice
+
+## Secciones principales
+
+- [Requisitos](#requisitos)
+- [Dependencias](#dependencias)
+- [Instalación](#instalación)
+- [Configuración](#configuración)
+- [Ejecución](#ejecución)
+
+## Autenticación
+
+- [Endpoints de Autenticación](#endpoints-de-autenticación)
+  - [Registrar usuario](#registrar-usuario)
+  - [Login de usuario](#login-de-usuario)
+- [Uso del token](#uso-del-token)
+- [Flujo de autenticación](#flujo-de-autenticación)
+
+## Usuarios
+
+- [Endpoints Usuarios](#endpoints-usuarios)
+  - [Crear usuario](#crear-usuario)
+  - [Obtener usuario por ID](#obtener-usuario-por-id)
+  - [Actualizar usuario](#actualizar-usuario)
+  - [Eliminar usuario](#eliminar-usuario)
+
+## Camiones
+
+- [Endpoints de Camiones (Truck)](#endpoints-de-camiones-truck)
+  - [Crear camión](#crear-camión)
+  - [Listar camiones](#listar-camiones)
+  - [Obtener camión por ID](#obtener-camión-por-id)
+  - [Actualizar camión](#actualizar-camión)
+  - [Eliminar camión](#eliminar-camión)
+
+## Localizaciones
+
+- [Endpoints de Localización (Location)](#endpoints-de-localizacion-location)
+  - [Crear localización](#crear-localización)
+  - [Listar localizaciones](#listar-localizaciones)
+  - [Obtener localización por ID](#obtener-localización-por-id)
+  - [Actualizar localización](#actualizar-localización)
+  - [Eliminar localización](#eliminar-localización)
+
+## Órdenes
+
+- [Endpoints de órdenes (Order)](#endpoints-de-ordenes-order)
+  - [Crear una orden](#crear-una-orden)
+  - [Listar todas las órdenes](#listar-todas-las-órdenes)
+  - [Obtener una orden por ID](#obtener-una-orden-por-id)
+  - [Actualizar el **status** de una orden](#actualizar-el-status-de-una-orden)
+  - [Actualizar una orden](#actualizar-una-orden)
+  - [Eliminar una orden](#eliminar-una-orden)
+
 ## Requisitos
 
 - Node.js >= 18
@@ -49,11 +103,9 @@ JWT_SECRET=test_secret_key
 pnpm start
 ```
 
-# Endpoints de Autenticación
+## Endpoints de Autenticación
 
 La API permite registrar usuarios y autenticarlos mediante JWT.
-
-## Endpoints
 
 ### Registrar usuario
 
@@ -148,6 +200,15 @@ Incluye el token JWT en el header para acceder a los endpoints protegidos:
 Authorization: Bearer <token>
 ```
 
+**Error si el token es inválido o fue enviado en el header:**
+
+```json
+{
+  "statusCode": 401,
+  "message": "Unauthorized"
+}
+```
+
 ## Flujo de autenticación
 
 1. **Registro:** El usuario se registra con email y contraseña. La contraseña se almacena hasheada.
@@ -210,8 +271,6 @@ Todos los endpoints requieren autenticación JWT.
   }
   ```
 
----
-
 ### Listar usuarios
 
 `GET /user`
@@ -228,8 +287,6 @@ Todos los endpoints requieren autenticación JWT.
   }
 ]
 ```
-
----
 
 ### Obtener usuario por ID
 
@@ -256,8 +313,6 @@ Todos los endpoints requieren autenticación JWT.
   "statusCode": 404
 }
 ```
-
----
 
 ### Actualizar usuario
 
@@ -293,8 +348,6 @@ Todos los endpoints requieren autenticación JWT.
 }
 ```
 
----
-
 ### Eliminar usuario
 
 `DELETE /user/:id`
@@ -312,11 +365,11 @@ Código HTTP 204 (Sin contenido)
 }
 ```
 
-# Endpoints de Camiones (Truck)
+## Endpoints de Camiones (Truck)
 
 Todos los endpoints requieren autenticación JWT.
 
-## Crear camión
+### Crear camión
 
 `POST /truck`
 
@@ -346,9 +399,7 @@ Todos los endpoints requieren autenticación JWT.
 }
 ```
 
----
-
-## Listar camiones
+### Listar camiones
 
 `GET /truck`
 
@@ -373,9 +424,7 @@ Todos los endpoints requieren autenticación JWT.
 ]
 ```
 
----
-
-## Obtener camión por ID
+### Obtener camión por ID
 
 `GET /truck/:id`
 
@@ -404,9 +453,7 @@ Todos los endpoints requieren autenticación JWT.
 }
 ```
 
----
-
-## Actualizar camión
+### Actualizar camión
 
 `PATCH /truck/:id`
 
@@ -444,9 +491,7 @@ Todos los endpoints requieren autenticación JWT.
 }
 ```
 
----
-
-## Eliminar camión
+### Eliminar camión
 
 `DELETE /truck/:id`
 
@@ -463,11 +508,11 @@ Código HTTP 204 (Sin contenido)
 }
 ```
 
-# Endpoints de Localización (Location)
+## Endpoints de Localización (Location)
 
 Todos los endpoints requieren autenticación JWT.
 
-## Crear localización
+### Crear localización
 
 `POST /location`
 
@@ -521,7 +566,7 @@ Todos los endpoints requieren autenticación JWT.
   }
   ```
 
-## Listar localizaciones
+### Listar localizaciones
 
 `GET /location`
 
@@ -546,7 +591,7 @@ Todos los endpoints requieren autenticación JWT.
 ]
 ```
 
-## Obtener localización por ID
+### Obtener localización por ID
 
 `GET /location/:id`
 
@@ -575,7 +620,7 @@ Todos los endpoints requieren autenticación JWT.
 }
 ```
 
-## Actualizar localización
+### Actualizar localización
 
 `PATCH /location/:id`
 
@@ -612,7 +657,7 @@ Todos los endpoints requieren autenticación JWT.
 }
 ```
 
-## Eliminar localización
+### Eliminar localización
 
 `DELETE /location/:id`
 
@@ -629,12 +674,12 @@ Código HTTP 204 (Sin contenido)
 }
 ```
 
-# Endpoints de ordenes (Order)
+## Endpoints de ordenes (Order)
 
 Permiten administrar órdenes de transporte, incluyendo información del usuario, camión y ubicaciones (`pickup` y `dropoff`).  
 Todos los endpoints están protegidos por **JWT** y requieren autenticación.
 
-## Crear una orden
+### Crear una orden
 
 `POST /order`
 
@@ -682,15 +727,7 @@ Crea una nueva orden asociada a un usuario, camión y ubicaciones opcionales.
   }
   ```
 
-- Falta la API Key:
-  ```json
-  {
-    "statusCode": 401,
-    "message": "Unauthorized"
-  }
-  ```
-
-## Listar todas las órdenes
+### Listar todas las órdenes
 
 `GET /order`
 
@@ -711,7 +748,7 @@ Obtiene todas las órdenes registradas.
 ]
 ```
 
-## Obtener una orden por ID
+### Obtener una orden por ID
 
 `GET /order/:id`
 
@@ -769,7 +806,7 @@ GET /order/6501c6e1c0a4de9988776655
   }
   ```
 
-## Actualizar el **status** de una orden
+### Actualizar el **status** de una orden
 
 `PATCH /order/:id/status`
 
@@ -819,7 +856,7 @@ Estados posibles:
   }
   ```
 
-## Actualizar una orden
+### Actualizar una orden
 
 `PATCH /order/:id`
 
@@ -867,7 +904,7 @@ Permite actualizar cualquier campo excepto el `_id`.
 }
 ```
 
-## Eliminar una orden
+### Eliminar una orden
 
 `DELETE /order/:id`
 
