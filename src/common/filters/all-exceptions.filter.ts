@@ -7,7 +7,7 @@ export class AllExceptionsFilter extends BaseExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost) {
     this.logger.error(
       `Error capturado: ${
-        exception instanceof Error ? exception.name : JSON.stringify(exception)
+        exception instanceof Error ? exception.stack : JSON.stringify(exception)
       }`,
     );
     super.catch(exception, host);

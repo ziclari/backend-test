@@ -8,7 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { TruckModule } from './truck/truck.module';
 import { LocationModule } from './location/location.module';
 import { OrderModule } from './order/order.module';
-import databaseConfig from './config/database-config';
+import databaseConfig from './common/config/database-config';
 
 @Module({
   imports: [

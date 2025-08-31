@@ -17,19 +17,7 @@ export class OrderService {
   ) {}
 
   async create(createOrderDto: CreateOrderDto): Promise<Order> {
-    const orderData = {
-      ...createOrderDto,
-      user: new Types.ObjectId(createOrderDto.user),
-      truck: new Types.ObjectId(createOrderDto.truck),
-      pickup: createOrderDto.pickup
-        ? new Types.ObjectId(createOrderDto.pickup)
-        : null,
-      dropoff: createOrderDto.dropoff
-        ? new Types.ObjectId(createOrderDto.dropoff)
-        : null,
-    };
-
-    const order = await this.orderModel.create(orderData);
+    const order = await this.orderModel.create(createOrderDto);
     return order;
   }
 

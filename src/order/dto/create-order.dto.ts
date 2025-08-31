@@ -1,24 +1,27 @@
-import { IsNotEmpty, IsOptional, IsMongoId, IsEnum } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsEnum } from 'class-validator';
 import { Types } from 'mongoose';
 import { OrderStatus } from '../enums/order-status.enum';
+import { Transform } from 'class-transformer';
+import { ToObjectId } from 'src/common/transforms/object-id.transform';
+
 export class CreateOrderDto {
   @IsOptional()
   @IsEnum(OrderStatus)
   status: string;
 
   @IsNotEmpty()
-  @IsMongoId()
+  @Transform(ToObjectId())
   user: Types.ObjectId;
 
   @IsNotEmpty()
-  @IsMongoId()
+  @Transform(ToObjectId())
   truck: Types.ObjectId;
 
   @IsOptional()
-  @IsMongoId()
+  @Transform(ToObjectId())
   pickup: Types.ObjectId;
 
   @IsOptional()
-  @IsMongoId()
+  @Transform(ToObjectId())
   dropoff: Types.ObjectId;
 }
